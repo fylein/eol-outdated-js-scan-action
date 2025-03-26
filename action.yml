@@ -53,7 +53,7 @@ runs:
         comment-author: 'github-actions[bot]'
 
     - name: Create dependency check comment
-      if: ${{ !cancelled() }}
+      if: ${{ steps.find_comment.outputs.comment-id == '' && !cancelled() }}
       uses: peter-evans/create-or-update-comment@v4
       with:
         token: ${{ inputs.token }}
@@ -61,7 +61,7 @@ runs:
         body: ${{ steps.generate_comment.outputs.comment }}
 
     - name: Update dependency check comment
-      if: ${{ !cancelled() }}
+      if: ${{ steps.find_comment.outputs.comment-id != '' && !cancelled() }}
       uses: peter-evans/create-or-update-comment@v4
       with:
         token: ${{ inputs.token }}
