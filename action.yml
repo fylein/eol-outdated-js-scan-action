@@ -39,7 +39,6 @@ runs:
         args: >
           --failOnCVSS 7
           --exclude "**/node_modules/**"
-          --exclude "**/bower_components/angular*/**"
           ${{ steps.suppression_arg.outputs.suppression }}
 
     - name: Generate comment
