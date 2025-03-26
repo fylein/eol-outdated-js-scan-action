@@ -46,13 +46,14 @@ runs:
       if: ${{ !cancelled() }}
       id: generate_comment
       uses: actions/github-script@v6
-      with: 
+      with:
         script: |
           const fs = require('fs');
 
           const filePath = 'reports/dependency-check-report.json';
           if (!fs.existsSync(filePath)) {
             console.log('No dependency-check JSON report found.');
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `vuln_count=0\ncomment<<EOF\n\nEOF\n`);
             process.exit(0);
           }
 
@@ -81,7 +82,7 @@ runs:
           };
 
           // Prepare table header with columns: Dependency Path, Dependency Name, CVE, Severity
-          let tableHeader = '| Dependency Path | Dependency Name | CVE | Severity |\n';
+          let tableHeader = '| Dependency Path | Dependency Name |   CVE   |   Severity   |\n';
           tableHeader += '|-----------------|-----------------|-----|----------|\n';
 
           // Collect vulnerability rows as objects for sorting
@@ -114,19 +115,25 @@ runs:
             }
           }
 
-          /*
-          * Sort the vulnerability rows by severity using sortOrder mapping.
-          * Vulnerabilities with an unrecognized severity are sorted last.
-          */
+          // Sort the vulnerability rows by severity using sortOrder mapping.
           vulnRows.sort((a, b) => {
             const orderA = sortOrder[a.severity] || 99;
             const orderB = sortOrder[b.severity] || 99;
             return orderA - orderB;
           });
 
+          const vulnCount = vulnRows.length;
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `vuln_count=${vulnCount}\n`);
+
+          if (vulnCount === 0) {
+            console.log("No vulnerabilities found. Not posting comment.");
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `comment<<EOF\n\nEOF\n`);
+            process.exit(0);
+          }
+
           // Calculate dynamic counts
           const criticalHighCount = vulnRows.filter(v => v.severity === 'CRITICAL' || v.severity === 'HIGH').length;
-          const totalVulnCount = vulnRows.length;
+          const totalVulnCount = vulnCount;
 
           // Create header text with dynamic counts and a large header for the scan results
           const headerText = `# 🔍 Security Scan Results\n\n⛔️ Action Required: ${criticalHighCount} Critical/High severity vulnerabilities found\nFound ${totalVulnCount} total vulnerabilities\n`;
@@ -136,16 +143,9 @@ runs:
             `| ${item.relativePath} | ${item.depName} | ${item.cve} | ${item.severityDisplay} |`
           );
 
-          // Build the final comment body
-          let commentBody;
-          if (rows.length === 0) {
-            commentBody = `🛡️ **Dependency-Check Report**\n\nNo vulnerabilities were found in the scan.`;
-          } else {
-            const markdownTable = tableHeader + rows.join('\n');
-            commentBody = `🛡️ **Dependency-Check Report**\n\n${headerText}${markdownTable}`;
-          }
+          const markdownTable = tableHeader + rows.join('\n');
+          const commentBody = `🛡️ **Dependency-Check Report**\n\n${headerText}${markdownTable}`;
 
-          // Output the comment body to stdout
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `comment<<EOF\n${commentBody}\nEOF\n`);
 
     - name: Find existing dependency check comment
@@ -158,7 +158,7 @@ runs:
         comment-author: 'github-actions[bot]'
 
     - name: Create dependency check comment
-      if: ${{ steps.find_comment.outputs.comment-id == '' && !cancelled() }}
+      if: ${{ steps.generate_comment.outputs.vuln_count != '0' && steps.find_comment.outputs.comment-id == '' && !cancelled() }}
       uses: peter-evans/create-or-update-comment@v4
       with:
         token: ${{ inputs.token }}
@@ -166,7 +166,7 @@ runs:
         body: ${{ steps.generate_comment.outputs.comment }}
 
     - name: Update dependency check comment
-      if: ${{ steps.find_comment.outputs.comment-id != '' && !cancelled() }}
+      if: ${{ steps.generate_comment.outputs.vuln_count != '0' && steps.find_comment.outputs.comment-id != '' && !cancelled() }}
       uses: peter-evans/create-or-update-comment@v4
       with:
         token: ${{ inputs.token }}
