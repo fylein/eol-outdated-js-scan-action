@@ -1,4 +1,4 @@
-name: "Security Scan (End of life and Outdated JS)"
+name: "End of Life and Outdated JS Scan"
 description: "Reusable composite action for scanning dependencies for end-of-life and outdated JS packages."
 
 inputs:
@@ -136,7 +136,7 @@ runs:
           const totalVulnCount = vulnCount;
 
           // Create header text with dynamic counts.
-          let headerText = `### 🔍 Security Scan Results\n\n`;
+          let headerText = `### 🔍 End of Life and Outdated JS Scan Results\n\n`;
           if (criticalHighCount > 0) {
             headerText += `⛔️ **Action Required:** ${criticalHighCount} Critical/High severity vulnerabilities found\n\n`;
           }
@@ -165,7 +165,7 @@ runs:
       uses: peter-evans/find-comment@v3
       with:
         issue-number: ${{ github.event.pull_request.number }}
-        body-includes: 'Security Scan Results'
+        body-includes: 'End of Life and Outdated JS Scan Results'
         comment-author: 'github-actions[bot]'
 
     - name: Create dependency check comment
