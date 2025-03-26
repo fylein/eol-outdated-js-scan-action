@@ -38,7 +38,7 @@ runs:
       uses: actions/github-script@v6
       with: 
         script: |
-          import fs from 'fs';
+          const fs = require('fs');
 
           const filePath = 'reports/dependency-check-report.json';
           if (!fs.existsSync(filePath)) {
