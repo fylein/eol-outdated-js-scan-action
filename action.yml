@@ -15,7 +15,7 @@ inputs:
   suppression_file:
     description: "Path to the suppression.xml file"
     required: false
-    default: "suppression.xml"
+    default: ""
 
 runs:
   using: "composite"
@@ -30,7 +30,7 @@ runs:
           --failOnCVSS 7
           --exclude "**/node_modules/**"
           --exclude "**/bower_components/angular*/**"
-          --suppression ${{ inputs.suppression_file }}
+          ${{ inputs.suppression_file != '' ? '--suppression ' + inputs.suppression_file : '' }}
 
     - name: Generate comment
       if: ${{ !cancelled() }}
