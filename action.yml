@@ -146,7 +146,7 @@ runs:
           }
 
           // Output the comment body to stdout
-          console.log(commentBody);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `comment=${commentBody}`);
 
     - name: Find existing dependency check comment
       if: ${{ !cancelled() }}
