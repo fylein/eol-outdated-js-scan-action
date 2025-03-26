@@ -30,7 +30,7 @@ runs:
           --failOnCVSS 7
           --exclude "**/node_modules/**"
           --exclude "**/bower_components/angular*/**"
-          ${{ inputs.suppression_file != '' ? '--suppression ' + inputs.suppression_file : '' }}
+          ${{ inputs.suppression_file && '--suppression ' + inputs.suppression_file }}
 
     - name: Generate comment
       if: ${{ !cancelled() }}
