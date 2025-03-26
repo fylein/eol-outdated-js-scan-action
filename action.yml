@@ -67,10 +67,10 @@ runs:
 
           // Emoji mapping for severity levels
           const emojiMapping = {
-            CRITICAL: '🚨',
-            HIGH: '🔴',
-            MEDIUM: '⚠️',
-            LOW: '✅'
+            CRITICAL: '🔴',
+            HIGH: '🟠',
+            MEDIUM: '🟡',
+            LOW: '🟢'
           };
 
           // Define sort order for severity (lower number means higher priority)
