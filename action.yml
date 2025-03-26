@@ -83,7 +83,7 @@ runs:
 
           // Prepare table header with columns: Dependency Path, Dependency Name, CVE, Severity
           let tableHeader = '| Dependency Path | Dependency Name |   CVE   |   Severity   |\n';
-          tableHeader += '|-----------------|-----------------|-----|----------|\n';
+          tableHeader += '|-----------------|-----------------|---------|--------------|\n';
 
           // Collect vulnerability rows as objects for sorting
           const vulnRows = [];
@@ -135,8 +135,19 @@ runs:
           const criticalHighCount = vulnRows.filter(v => v.severity === 'CRITICAL' || v.severity === 'HIGH').length;
           const totalVulnCount = vulnCount;
 
-          // Create header text with dynamic counts and a large header for the scan results
-          const headerText = `# 🔍 Security Scan Results\n\n⛔️ Action Required: ${criticalHighCount} Critical/High severity vulnerabilities found\nFound ${totalVulnCount} total vulnerabilities\n`;
+          // Create header text with dynamic counts.
+          let headerText = `### 🔍 Security Scan Results\n\n`;
+          if (criticalHighCount > 0) {
+            headerText += `⛔️ **Action Required:** ${criticalHighCount} Critical/High severity vulnerabilities found\n\n`;
+          }
+          headerText += `Found ${totalVulnCount} total vulnerabilities\n`;
+
+          let footerText = '\n### Remediation\n';
+          if (criticalHighCount > 0) {
+            footerText += `⚠️ **Action Required:** Critical/High severity vulnerabilities must be fixed before merging\n\n`;
+          }
+          footerText += `- Update vulnerable packages to their fixed versions where available\n`;
+          footerText += `- Run \`dependency-check\` locally to see more details\n`;
 
           // Convert sorted objects to Markdown table rows
           const rows = vulnRows.map(item =>
@@ -144,12 +155,12 @@ runs:
           );
 
           const markdownTable = tableHeader + rows.join('\n');
-          const commentBody = `🛡️ **Dependency-Check Report**\n\n${headerText}${markdownTable}`;
+          const commentBody = `${headerText}${markdownTable}${footerText}`;
 
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `comment<<EOF\n${commentBody}\nEOF\n`);
 
     - name: Find existing dependency check comment
-      if: ${{ !cancelled() }}
+      if: ${{ steps.generate_comment.outputs.vuln_count != '0' && !cancelled() }}
       id: find_comment
       uses: peter-evans/find-comment@v3
       with:
