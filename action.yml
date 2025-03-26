@@ -34,6 +34,7 @@ runs:
 
     - name: Run dependency-check script to generate comment
       if: ${{ !cancelled() }}
+      shell: bash
       id: generate_comment
       run: |
         # Run your Node script and capture the output into comment.txt
