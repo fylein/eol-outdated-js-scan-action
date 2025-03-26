@@ -20,6 +20,16 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Set suppression argument
+      id: suppression_arg
+      shell: bash
+      run: |
+        if [ -z "${{ inputs.suppression_file }}" ]; then
+          echo "suppression=" >> $GITHUB_OUTPUT
+        else
+          echo "suppression=--suppression ${{ inputs.suppression_file }}" >> $GITHUB_OUTPUT
+        fi
+
     - name: Run Dependency Check
       uses: dependency-check/Dependency-Check_Action@main
       with:
@@ -30,7 +40,7 @@ runs:
           --failOnCVSS 7
           --exclude "**/node_modules/**"
           --exclude "**/bower_components/angular*/**"
-          ${{ inputs.suppression_file && '--suppression ' + inputs.suppression_file }}
+          ${{ steps.suppression_arg.outputs.suppression }}
 
     - name: Generate comment
       if: ${{ !cancelled() }}
