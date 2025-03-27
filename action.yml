@@ -21,16 +21,16 @@ runs:
       id: suppression_arg
       shell: bash
       run: |
-        if [ -z "${{ inputs.suppression_file }}" ]; then
+        if [ -z "${{ inputs.suppression }}" ]; then
           echo "suppression=" >> $GITHUB_OUTPUT
         else
-          echo "suppression=--suppression ${{ inputs.suppression_file }}" >> $GITHUB_OUTPUT
+          echo "suppression=--suppression ${{ inputs.suppression }}" >> $GITHUB_OUTPUT
         fi
 
     - name: Run Dependency Check
       uses: dependency-check/Dependency-Check_Action@main
       with:
-        path: ${{ inputs.path }}
+        path: ${{ inputs.scan }}
         format: 'JSON'
         project: ${{ github.workspace }}
         args: >
@@ -57,7 +57,7 @@ runs:
       if: ${{ steps.generate_comment.outputs.vuln_count != '0' && steps.find_comment.outputs.comment-id == '' && !cancelled() }}
       uses: peter-evans/create-or-update-comment@v4
       with:
-        token: ${{ inputs.token }}
+        token: ${{ inputs.github-token }}
         issue-number: ${{ github.event.pull_request.number }}
         body: ${{ steps.generate_comment.outputs.comment }}
 
@@ -65,7 +65,7 @@ runs:
       if: ${{ steps.generate_comment.outputs.vuln_count != '0' && steps.find_comment.outputs.comment-id != '' && !cancelled() }}
       uses: peter-evans/create-or-update-comment@v4
       with:
-        token: ${{ inputs.token }}
+        token: ${{ inputs.github-token }}
         comment-id: ${{ steps.find_comment.outputs.comment-id }}
         issue-number: ${{ github.event.pull_request.number }}
         body: ${{ steps.generate_comment.outputs.comment }}
