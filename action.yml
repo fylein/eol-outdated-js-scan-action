@@ -5,9 +5,6 @@ inputs:
   github-token:
     description: "GitHub token for creating/updating comments"
     required: true
-  project:
-    description: "Project name for dependency-check"
-    required: true
   scan:
     description: "Path to run dependency-check on"
     required: false
@@ -35,7 +32,7 @@ runs:
       with:
         path: ${{ inputs.path }}
         format: 'JSON'
-        project: ${{ inputs.project }}
+        project: ${{ github.workspace }}
         args: >
           --failOnCVSS 7
           --exclude "**/node_modules/**"
