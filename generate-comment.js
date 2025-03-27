@@ -47,7 +47,7 @@ if (Array.isArray(report.dependencies)) {
             for (const vuln of dep.vulnerabilities) {
                 const cve = vuln.name || '-';
                 // Determine severity and emoji display
-                const severity = (vuln.cvssv3 && vuln.cvssv3.baseSeverity) ? vuln.cvssv3.baseSeverity : '-';
+                const severity = (vuln.cvssv3 && vuln.cvssv3.baseSeverity) ? vuln.cvssv3.baseSeverity : (vuln.cvssv2 && vuln.cvssv2.severity ? vuln.cvssv2.severity : '-');
                 const severityUpper = severity.toUpperCase();
                 let severityDisplay = severity;
                 if (severity !== '-' && emojiMapping[severityUpper]) {
