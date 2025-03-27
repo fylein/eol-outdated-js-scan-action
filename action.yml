@@ -2,17 +2,17 @@ name: "End of Life and Outdated JS Scan"
 description: "Reusable composite action for scanning dependencies for end-of-life and outdated JS packages."
 
 inputs:
-  token:
+  github-token:
     description: "GitHub token for creating/updating comments"
     required: true
   project:
     description: "Project name for dependency-check"
     required: true
-  path:
+  scan:
     description: "Path to run dependency-check on"
     required: false
     default: "."
-  suppression_file:
+  suppression:
     description: "Path to the suppression.xml file"
     required: false
     default: ""
