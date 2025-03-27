@@ -4,7 +4,7 @@ const filePath = 'reports/dependency-check-report.json';
 if (!fs.existsSync(filePath)) {
     console.log('No dependency-check JSON report found.');
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `vuln_count=0\ncomment<<EOF\n\nEOF\n`);
-    process.exit(0);
+    process.exit(1);
 }
 
 let report;
