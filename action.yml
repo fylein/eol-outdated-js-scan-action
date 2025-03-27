@@ -41,6 +41,7 @@ runs:
     - name: Generate comment
       if: ${{ !cancelled() }}
       id: generate_comment
+      shell: bash
       run: node ${{ github.action_path }}/generate-comment.js
 
     - name: Find existing dependency check comment
