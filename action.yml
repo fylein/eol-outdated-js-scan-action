@@ -1,21 +1,21 @@
-name: "End of Life and Outdated JS Scan"
-description: "Reusable composite action for scanning dependencies for end-of-life and outdated JS packages."
+name: 'End of Life and Outdated JS Scan'
+description: 'Reusable composite action for scanning dependencies for end-of-life and outdated JS packages.'
 
 inputs:
   github-token:
-    description: "GitHub token for creating/updating comments"
+    description: 'GitHub token for creating/updating comments'
     required: true
   scan:
-    description: "Path to run dependency-check on"
+    description: 'Path to run dependency-check on'
     required: false
-    default: "."
+    default: '.'
   suppression:
-    description: "Path to the suppression.xml file"
+    description: 'Path to the suppression.xml file'
     required: false
-    default: ""
+    default: ''
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Set suppression argument
       id: suppression_arg
