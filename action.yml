@@ -1,0 +1,72 @@
+name: 'End of Life and Outdated JS Scan'
+description: 'Reusable composite action for scanning dependencies for end-of-life and outdated JS packages.'
+
+inputs:
+  github-token:
+    description: 'GitHub token for creating/updating comments'
+    required: true
+  scan:
+    description: 'Path to run dependency-check on'
+    required: false
+    default: '.'
+  suppression:
+    description: 'Path to the suppression.xml file'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set suppression argument
+      id: suppression_arg
+      shell: bash
+      run: |
+        if [ -z "${{ inputs.suppression_file }}" ]; then
+          echo "suppression=" >> $GITHUB_OUTPUT
+        else
+          echo "suppression=--suppression ${{ inputs.suppression_file }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Run Dependency Check
+      uses: dependency-check/Dependency-Check_Action@main
+      with:
+        path: ${{ inputs.path }}
+        format: 'JSON'
+        project: ${{ github.workspace }}
+        args: >
+          --failOnCVSS 7
+          --exclude "**/node_modules/**"
+          ${{ steps.suppression_arg.outputs.suppression }}
+
+    - name: Generate comment
+      if: ${{ !cancelled() }}
+      id: generate_comment
+      shell: bash
+      run: node ${{ github.action_path }}/generate-comment.js
+
+    - name: Find existing dependency check comment
+      if: ${{ steps.generate_comment.outputs.vuln_count != '0' && !cancelled() }}
+      id: find_comment
+      uses: peter-evans/find-comment@v3
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        body-includes: 'End of Life and Outdated JS Scan Results'
+        comment-author: 'github-actions[bot]'
+
+    - name: Create dependency check comment
+      if: ${{ steps.generate_comment.outputs.vuln_count != '0' && steps.find_comment.outputs.comment-id == '' && !cancelled() }}
+      uses: peter-evans/create-or-update-comment@v4
+      with:
+        token: ${{ inputs.token }}
+        issue-number: ${{ github.event.pull_request.number }}
+        body: ${{ steps.generate_comment.outputs.comment }}
+
+    - name: Update dependency check comment
+      if: ${{ steps.generate_comment.outputs.vuln_count != '0' && steps.find_comment.outputs.comment-id != '' && !cancelled() }}
+      uses: peter-evans/create-or-update-comment@v4
+      with:
+        token: ${{ inputs.token }}
+        comment-id: ${{ steps.find_comment.outputs.comment-id }}
+        issue-number: ${{ github.event.pull_request.number }}
+        body: ${{ steps.generate_comment.outputs.comment }}
+        edit-mode: 'replace'
