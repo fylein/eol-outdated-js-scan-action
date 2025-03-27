@@ -10,28 +10,6 @@ This GitHub Action scans your repository for end of life and outdated javascript
 - 📝 Organized vulnerability reporting by severity and package
 - 🔄 Support for suppressing false positives
 
-## Usage
-
-Add the following workflow to your repository (e.g., `.github/workflows/eol-outdated-js-scan.yml`):
-
-```yaml
-name: End of Life and Outdated JS Scan
-
-on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-
-jobs:
-  scan:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run Scanner
-        uses: fylein/eol-outdated-js-scan-action@master
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          project: 'example-project'
-```
-
 ## Inputs
 
 | Input | Description | Required | Default |
