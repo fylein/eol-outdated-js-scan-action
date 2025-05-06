@@ -13,6 +13,9 @@ inputs:
     description: 'Path to the suppression.xml file'
     required: false
     default: ''
+  nvd-api-key:
+    description: 'NVD API key for the dependency check'
+    required: true
 
 runs:
   using: 'composite'
@@ -35,7 +38,7 @@ runs:
         project: ${{ github.workspace }}
         args: >
           --failOnCVSS 7
-          --nvdApiKey ${{ secrets.NVD_API_KEY }}
+          --nvdApiKey ${{ inputs.nvd-api-key }}
           --exclude "**/node_modules/**"
           ${{ steps.suppression_arg.outputs.suppression }}
 
