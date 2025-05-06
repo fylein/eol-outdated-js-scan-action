@@ -35,7 +35,7 @@ runs:
         project: ${{ github.workspace }}
         args: >
           --failOnCVSS 7
-          --nvdApiKey ${{ secrets.NVD_API_KEY }}
+          --nvdApiKey 6d5335f0-2452-4d22-a33f-d91dc8aaaabb
           --exclude "**/node_modules/**"
           ${{ steps.suppression_arg.outputs.suppression }}
 
