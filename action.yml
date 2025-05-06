@@ -16,6 +16,7 @@ inputs:
   nvd-api-key:
     description: 'NVD API key for the dependency check'
     required: false
+    default: ''
 
 runs:
   using: 'composite'
